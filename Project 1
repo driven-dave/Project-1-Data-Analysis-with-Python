@@ -1,0 +1,150 @@
+Code from Coursera Python Project
+	
+Data Analysis with Python: Inform a Business Decision 
+
+# Airbnb wants to know what units to promote in the NYC area.
+
+	1.Import Airbnb data from the New York City CSV
+
+import pandas as pd
+import os
+
+df = pd.read_csv(os.path.join(os.getenv('WORKSPACE'),'AB_NYC_2019.csv'))
+
+print(df.head(1).to_string())
+
+df.info() 
+
+	2.Remove columns and rows that are not needed for our purpose
+
+import pandas as pd
+import os
+
+df = pd.read_csv(os.path.join(os.getenv('WORKSPACE'),'AB_NYC_2019.csv'))
+
+droplist = [
+    "host_name",
+    "neighbourhood",
+    "latitude",
+    "longitude",
+    "room_type",
+    "calculated_host_listings_count",
+    "reviews_per_month"
+]
+
+df2 = df.drop(droplist, axis='columns')
+
+print(df2.head(1).to_string())
+
+df2.dropna(inplace=True) 
+
+df2.info()
+
+	3. Remove rows that don’t meet the parameters of the business question.
+
+import pandas as pd
+import os
+
+df3 = pd.read_csv(os.path.join(os.getenv('WORKSPACE'),'nyc_airbnb_df2.csv'), sep="\t")
+
+df3.drop_duplicates(inplace=True)  
+
+df3['last_review'] = pd.to_datetime(df3['last_review'])
+
+# Business questions
+# 1. Find Airbnb units that are $100 per night or less.
+# 2. They dont require more than a two night minimum stay.
+# 3. They have at least 100 reviews.
+# 4. They are available at least 180 days per year.
+
+df3 = df3.query('price < 101 & minimum_nights < 3 & number_of_reviews > 99 & availability_365 > 179')
+
+df3.info()
+
+print()
+
+print(df3.head(20).to_string())
+
+	4. Sort the result to prepare potential hosts to promote
+
+import pandas as pd
+import os
+
+# Pull some data from previously edited data frame df3
+df4 = pd.read_csv(os.path.join(os.getenv('WORKSPACE'),'nyc_airbnb_df3.csv'), sep="\t")
+
+# Sort values based on the negihbourhood group and last review and remove any empty cells
+df4.sort_values(by=["neighbourhood_group", "last_review"], inplace=True)
+
+df4.info()
+
+print()
+
+# Show the 20 lines of the sorted data with it's columns
+print(df4.head(10).to_string())
+
+# how to look at the end of the data
+print(df4.tail(10).to_string())
+
+	5.  Separate hosts by borough and rank by price
+
+import pandas as pd
+import os
+​
+# Take the results form the last task and label it promotion
+promotion = pd.read_csv(os.path.join(os.getenv('WORKSPACE'),'nyc_airbnb_sorted.csv'), sep="\t")
+​
+# Sort by neighborhood group and price
+promotion.sort_values(by=["neighbourhood_group", "price"], inplace=True)
+​
+print()
+​
+# Verify the data is sorted the way Airbnb requested
+print(promotion.head(20).to_string())
+​
+# Provide a count of how many results are from each New York City borough 
+groups = promotion["neighbourhood_group"].value_counts()
+​
+# Create a file that you can presents your findings
+print(groups,file=open(os.path.join(os.getenv('WORKSPACE'), 'neighbourhood_count.txt'),'a'))
+​
+print()
+​
+print(groups)
+
+
+# Second set of tasks
+# Airbnb wants to promote luxury units in the two most popular boroughs of NYC. 
+# Determine how many units in those two boroughs cost more than $1000 per night
+# and have a minimum stay of one or two nights.
+
+import pandas as pd
+import os
+
+# Using Pandas to read the .CSV file
+df = pd.read_csv(os.path.join(os.getenv('WORKSPACE'),'AB_NYC_2019.csv'))
+
+# Drop any duplicate rows from df and rows that have empty fields
+df.drop_duplicates(inplace=True) 
+df.dropna(inplace=True)
+
+# Filter the data and rows by Airbnb's requirements.
+df = df.query('price > 1000 & minimum_nights < 3')
+df = df.query('neighbourhood_group == "Brooklyn" or neighbourhood_group == "Manhattan" ')
+
+# Sort by neighbourhood_group and price.
+df.sort_values(by=["neighbourhood_group", "price"], inplace=True)
+
+# Find the # of units to meet these conditions
+df.info()
+
+# Display the first 10 rows
+print(df.head(10).to_string())
+
+
+
+
+​
+​
+
+
